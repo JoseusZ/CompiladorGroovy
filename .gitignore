@@ -1,0 +1,35 @@
+# ============================================================
+#  .gitignore - CompiladorGroovy
+# ============================================================
+
+# --- Entorno y herramientas locales ---
+groovy-3.0.25/
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# --- Builds / outputs del compilador ---
+# Los tokens verticales son output del lexer (rerunnable)
+output/tokens_verticales.txt
+build/
+out/
+classes/
+*.class
+*.jar
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs y temporales ---
+*.log
+*.tmp
+*.bak
+~$*
+
+# --- Groovy / Java ---
+.idea_modules/
+.gradle/

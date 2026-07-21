@@ -1,0 +1,153 @@
+// archivo src/gramatica.txt
+
+<programa> ::= <lista_declaraciones> eof
+
+<lista_declaraciones> ::= <declaracion> <lista_declaraciones> | vacio
+
+<declaracion> ::= <clase_decl> | <metodo_decl> | <sentencia>
+
+<clase_decl> ::= "class" identificador "{" <lista_miembros> "}"
+
+<lista_miembros> ::= <miembro> <lista_miembros> | vacio
+
+<miembro> ::= <metodo_decl> | <variable_decl> | <arreglo_decl>
+
+// funciones y procedimientos tipo void
+<metodo_decl> ::= <tipo_dato> identificador "(" <lista_parametros_opt> ")" "{" <lista_sentencias> "}"
+
+<lista_parametros_opt> ::= <lista_parametros> | vacio
+
+<lista_parametros> ::= <parametro> <mas_parametros>
+
+<mas_parametros> ::= "," <parametro> <mas_parametros> | vacio
+
+// parametros pueden ser arreglos
+<parametro> ::= <tipo_dato> <corchetes_opt> identificador
+
+<corchetes_opt> ::= "[" "]" | vacio
+
+<lista_sentencias> ::= <sentencia> <lista_sentencias> | vacio
+
+<sentencia> ::= <if_stmt> 
+              | <while_stmt> 
+              | <for_stmt>
+              | <variable_decl> 
+              | <arreglo_decl>
+              | <asignacion_stmt> 
+              | <retorno_stmt> 
+              | <impresion_stmt>
+              | <llamada_metodo> <opt_punto_coma> 
+              | <bloque>
+
+<opt_punto_coma> ::= ";" | vacio
+
+<bloque> ::= "{" <lista_sentencias> "}"
+
+<if_stmt> ::= "if" "(" <expresion> ")" <bloque> <else_opt>
+
+<else_opt> ::= "else" <bloque> | vacio
+
+<while_stmt> ::= "while" "(" <expresion> ")" <bloque>
+
+// punto y coma en for son obligatorios
+<for_stmt> ::= "for" "(" <init_for> <expresion> ";" <asignacion> ")" <bloque>
+
+// el for puede iniciar variable o arreglo
+<init_for> ::= <variable_decl> | <arreglo_decl>
+
+// declaracion de variables normales
+<variable_decl> ::= <tipo_dato> identificador <init_opt> <opt_punto_coma>
+
+// declaracion explicita de arreglos
+<arreglo_decl> ::= <tipo_dato> "[" "]" identificador <init_arreglo_opt> <opt_punto_coma>
+
+<tipo_dato> ::= "def" | "int" | "float" | "double" | "boolean" | "string" | "void" | identificador
+
+<init_opt> ::= "=" <expresion> | vacio
+
+<init_arreglo_opt> ::= "=" <arreglo_literal> | vacio
+
+<asignacion_stmt> ::= <asignacion> <opt_punto_coma>
+
+// asignacion a variables y arreglos
+<asignacion> ::= identificador "=" <expresion> 
+               | identificador "+=" <expresion> 
+               | identificador "-=" <expresion>
+               | identificador "[" <expresion> "]" "=" <expresion>
+               | identificador "[" <expresion> "]" "+=" <expresion>
+               | identificador "[" <expresion> "]" "-=" <expresion>
+
+<retorno_stmt> ::= "return" <expresion_opt> <opt_punto_coma>
+
+<expresion_opt> ::= <expresion> | vacio
+
+<impresion_stmt> ::= "println" "(" <expresion> ")" <opt_punto_coma>
+                   | "print" "(" <expresion> ")" <opt_punto_coma>
+
+<expresion> ::= <exp_logica_or>
+
+<exp_logica_or> ::= <exp_logica_and> <mas_or>
+
+<mas_or> ::= "||" <exp_logica_and> <mas_or> | vacio
+
+<exp_logica_and> ::= <exp_igualdad> <mas_and>
+
+<mas_and> ::= "&&" <exp_igualdad> <mas_and> | vacio
+
+<exp_igualdad> ::= <exp_relacional> <mas_igualdad>
+
+<mas_igualdad> ::= "==" <exp_relacional> <mas_igualdad> 
+                 | "!=" <exp_relacional> <mas_igualdad> 
+                 | vacio
+
+<exp_relacional> ::= <exp_aritmetica> <mas_relacional>
+
+<mas_relacional> ::= "<" <exp_aritmetica> <mas_relacional> 
+                   | ">" <exp_aritmetica> <mas_relacional> 
+                   | "<=" <exp_aritmetica> <mas_relacional> 
+                   | ">=" <exp_aritmetica> <mas_relacional> 
+                   | vacio
+
+<exp_aritmetica> ::= <termino> <mas_aritmetica>
+
+<mas_aritmetica> ::= "+" <termino> <mas_aritmetica> 
+                   | "-" <termino> <mas_aritmetica> 
+                   | vacio
+
+<termino> ::= <factor> <mas_termino>
+
+<mas_termino> ::= "*" <factor> <mas_termino> 
+                | "/" <factor> <mas_termino> 
+                | "%" <factor> <mas_termino> 
+                | vacio
+
+// posicion de arreglo para uso de valor
+<factor> ::= "(" <expresion> ")" 
+           | <llamada_metodo> 
+           | <literal> 
+           | identificador
+           | identificador "[" <expresion> "]"
+
+// ejecucion de funciones y procedimientos
+<llamada_metodo> ::= identificador "(" <lista_argumentos_opt> ")"
+
+<lista_argumentos_opt> ::= <lista_argumentos> | vacio
+
+<lista_argumentos> ::= <expresion> <mas_argumentos>
+
+<mas_argumentos> ::= "," <expresion> <mas_argumentos> | vacio
+
+// literal puede ser un arreglo
+<literal> ::= numero_entero 
+            | numero_decimal 
+            | cadena 
+            | booleano 
+            | nulo
+            | <arreglo_literal>
+
+// estructura de arreglo con corchetes
+<arreglo_literal> ::= "[" <lista_argumentos_opt> "]"
+
+<booleano> ::= "true" | "false"
+
+<nulo> ::= "null"
