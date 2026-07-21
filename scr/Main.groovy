@@ -102,18 +102,55 @@ class Main {
     }
 
     /**
-     * Lee lineas desde stdin hasta que el usuario escriba 'EOF' en una linea sola.
-     * Asi funciona tanto en consola interactiva como cuando se redirige con pipes.
+     * Lee el codigo fuente desde stdin.
+     *
+     * Estrategia:
+     *  - Si NO hay consola interactiva (pipe, redireccion o modo "trabajo por
+     *    lotes" de cmd.exe en Windows), se lee todo System.in de una sola
+     *    vez. Esto evita el molesto prompt
+     *        "Terminar el programa por lotes (S/N)?"
+     *    que cmd lanza cuando un proceso lee stdin sin TTY real.
+     *  - Si SI hay consola interactiva, se mantiene el bucle por lineas
+     *    terminado con una linea que contenga solo 'EOF'.
+     *
+     * En ambos casos, si la entrada trae una linea 'EOF' al final, se
+     * descarta para que no aparezca en el codigo fuente.
      */
     private static String leerDesdeStdin() {
-        StringBuilder sb = new StringBuilder()
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))
-        String linea
-        while ((linea = reader.readLine()) != null) {
-            if (linea.trim() == "EOF") break
-            sb.append(linea).append('\n')
+        String textoCrudo
+        try {
+            if (System.console() == null) {
+                // Sin TTY: leer todo de golpe. Sin BufferedReader.readLine()
+                // que es lo que dispara el prompt de cmd.
+                textoCrudo = System.in.text
+            } else {
+                // Con TTY: lectura interactiva linea a linea.
+                StringBuilder sb = new StringBuilder()
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))
+                String linea
+                while ((linea = reader.readLine()) != null) {
+                    if (linea.trim() == "EOF") break
+                    sb.append(linea).append('\n')
+                }
+                textoCrudo = sb.toString()
+            }
+        } catch (Exception ioe) {
+            println "[main] no se pudo leer stdin: " + ioe.message
+            return ""
         }
-        return sb.toString().trim()
+
+        return limpiarEofFinal(textoCrudo)
+    }
+
+    /**
+     * Quita una linea final 'EOF' (con o sin espacios) y normaliza saltos.
+     */
+    private static String limpiarEofFinal(String texto) {
+        if (texto == null) return ""
+        String normalizado = texto.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
+        // Quitar la linea EOF final si existe
+        normalizado = normalizado.replaceAll(/(?m)\s*\bEOF\b\s*$/, '')
+        return normalizado.trim()
     }
 
     /**
